@@ -1,4 +1,4 @@
-﻿export type Severity = "pass" | "review" | "blocked" | "unknown";
+export type Severity = "pass" | "review" | "blocked" | "unknown";
 export type ResultStatus = "PASS" | "REVIEW" | "BLOCKED" | "UNKNOWN";
 
 export interface TimeWindow {
@@ -58,6 +58,13 @@ export interface EvaluationResult {
   recommendation: string;
   findings: Finding[];
 }
+
+export const MAX_SENSOR_AGE_MINUTES: number;
+
+export function overlaps(
+  first: TimeWindow | null | undefined,
+  second: TimeWindow | null | undefined,
+): boolean;
 
 export function evaluateRoutine(input: RoutineInput): EvaluationResult;
 

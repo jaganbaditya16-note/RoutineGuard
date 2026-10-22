@@ -83,6 +83,8 @@ export default function Home() {
       if (stored) {
         const parsed: unknown = JSON.parse(stored);
         if (Array.isArray(parsed)) {
+          // Intentional restoration of saved browser session history.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setHistory(parsed.slice(0, 20) as HistoryEntry[]);
         }
       }
@@ -110,7 +112,7 @@ export default function Home() {
     2000, 0, 1, routineHour, routineMinute
   ).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
-  function handleNavigation(label: string, _target: string) {
+  function handleNavigation(label: string) {
     setActiveNav(label);
     window.scrollTo({ top: 0, behavior: "auto" });
   }
@@ -155,7 +157,7 @@ export default function Home() {
       <aside className="sidebar">
         <button
           className="brand"
-          onClick={() => handleNavigation("Overview", "dashboard")}
+          onClick={() => handleNavigation("Overview")}
           aria-label="RoutineGuard overview"
         >
           <span className="brand-mark">r<span>.</span></span>
@@ -172,7 +174,7 @@ export default function Home() {
             <button
               key={item.label}
               className={`nav-link ${activeNav === item.label ? "active" : ""}`}
-              onClick={() => handleNavigation(item.label, item.target)}
+              onClick={() => handleNavigation(item.label)}
             >
               <span className="nav-symbol">{item.symbol}</span>
               <span>{item.label}</span>
@@ -189,7 +191,7 @@ export default function Home() {
           <div className="side-note-icon">✳</div>
           <strong>Trust, but verify.</strong>
           <p>Test the routine before you depend on it.</p>
-          <button onClick={() => handleNavigation("Routine Lab", "routine-lab")}>
+          <button onClick={() => handleNavigation("Routine Lab")}>
             Open Routine Lab <span>→</span>
           </button>
         </div>
@@ -229,7 +231,7 @@ export default function Home() {
           </div>
           <button
             className="primary-button heading-button"
-            onClick={() => handleNavigation("Routine Lab", "routine-lab")}
+            onClick={() => handleNavigation("Routine Lab")}
           >
             <span>＋</span> Test a routine
           </button>
@@ -255,7 +257,7 @@ export default function Home() {
             </p>
             <button
               className="hero-button"
-              onClick={() => handleNavigation("Routine Lab", "routine-lab")}
+              onClick={() => handleNavigation("Routine Lab")}
             >
               Explore Routine Lab <span>↗</span>
             </button>
