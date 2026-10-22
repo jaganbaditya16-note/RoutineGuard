@@ -2,26 +2,27 @@
 
 **Test the routine before you trust it.**
 
-RoutineGuard checks simulated smart-home routines before they are treated
-as verified. It detects invalid schedules, unavailable devices, stale sensor
-readings, and conflicting actions.
+RoutineGuard is a simulation-first preflight checker for smart-home routines. Before a routine is treated as verified, it checks the supplied schedule, device availability, sensor-data freshness, and conflicting actions, then explains the result and a recommended next step.
 
-## Features
+> **Prototype limitation:** RoutineGuard uses synthetic/example data. It does not connect to or control real appliances, and a PASS result does not prove that a real home is safe.
 
-- Next.js dashboard and Routine Lab
-- Deterministic routine evaluation engine
-- Regression tests for invalid schedules
-- MCP server using Streamable HTTP
-- Three MCP tools: `run_preflight_test`, `run_demo_scenario`,
-  and `get_routineguard_policy`
+## What it demonstrates
+
+- A Next.js dashboard with Overview, Routine Lab, Devices, and Activity Log views.
+- A deterministic evaluation engine that returns `PASS`, `REVIEW`, `BLOCKED`, or `UNKNOWN`.
+- Evidence and recommended next steps for each example result.
+- A self-hosted MCP server over Streamable HTTP.
+- Three MCP tools: `run_preflight_test`, `run_demo_scenario`, and `get_routineguard_policy`.
+- Unit tests for the engine and MCP tools, plus a protocol integration check.
 
 ## Requirements
 
-Node.js 20.9 or later and npm.
+- Node.js 20.9 or later
+- npm
 
 ## Run the dashboard
 
-From PowerShell:
+In PowerShell:
 
     Set-Location "C:\Users\Jagan\Projects\RoutineGuard\web"
     npm ci
@@ -31,19 +32,16 @@ Open http://localhost:3000.
 
 ## Run the MCP server
 
-Open a second PowerShell terminal:
+Open a **second** PowerShell terminal:
 
     Set-Location "C:\Users\Jagan\Projects\RoutineGuard\web"
     npm run mcp
 
-MCP endpoint: http://127.0.0.1:3001/mcp
-Health endpoint: http://127.0.0.1:3001/health
-
-Keep the server running while executing the MCP protocol test.
+The local MCP endpoint is http://127.0.0.1:3001/mcp. The health endpoint is http://127.0.0.1:3001/health. Keep this terminal running while you run the protocol check.
 
 ## Verify the project
 
-Run these commands from the web directory:
+From the `web` directory:
 
     npm test
     npm run test:mcp
@@ -54,27 +52,35 @@ With the MCP server running in another terminal:
 
     npm run test:protocol
 
+The protocol check initializes an MCP client, discovers the three tools, and exercises the demo scenarios and policy response. Verify the negotiated MCP protocol version against the hackathon's required minimum before claiming compliance.
+
 ## Decision statuses
 
-- PASS: supplied inputs passed the implemented checks.
-- REVIEW: conflicting actions need attention.
-- BLOCKED: a required device is offline or not configured.
-- UNKNOWN: required evidence is unavailable or invalid.
+- **PASS** — the supplied inputs passed the implemented checks; this is not real-world safety verification.
+- **REVIEW** — conflicting scheduled actions need attention.
+- **BLOCKED** — a required device is offline or not configured.
+- **UNKNOWN** — required evidence is unavailable or invalid.
 
-Severity precedence: BLOCKED > UNKNOWN > REVIEW > PASS.
+Severity precedence: `BLOCKED > UNKNOWN > REVIEW > PASS`.
 
-## Safety and limitations
+## Demo walkthrough
 
-RoutineGuard currently uses simulated data. It does not control real
-appliances and does not prove that a real home is safe. A PASS means only
-that the supplied inputs passed the implemented checks.
+1. Open **Routine Lab** and run **All checks clear**.
+2. Select **Device offline** and run the check; review the blocking evidence and recommendation.
+3. Select **Schedule conflict** and run the check; review the overlapping actions.
+4. Select **Sensor data missing** and run the check; observe that missing evidence produces UNKNOWN, not PASS.
+5. Start the MCP server in a second terminal and run `npm run test:protocol` to demonstrate tool discovery and calls.
 
-The production dependency audit reported zero vulnerabilities. The full
-development audit reported a braces advisory in the ESLint/Next.js tooling
-dependency chain. No forced downgrade was applied.
+Use the walkthrough as a recording plan; add the public demo-video URL to your hackathon submission once the video is uploaded.
 
-See FRICTION_LOG.md for recorded development problems and workarounds.
+## Security and dependency audit
+
+The production dependency audit previously reported zero vulnerabilities (`npm audit --omit=dev`). The full development audit currently reports a high-severity advisory for `braces`, pulled in through the ESLint/Next.js development-tooling dependency chain. The advisory currently lists no patched release, and npm's suggested `--force` fix would downgrade `eslint-config-next` to an incompatible major version. Do **not** run `npm audit fix --force` as a blind fix. Recheck the advisory and dependency tree before changing the lockfile; this is an unresolved development-tooling advisory, not a claim that the full audit is clean.
+
+## Development friction
+
+See [FRICTION_LOG.md](./FRICTION_LOG.md) for the recorded issues, workarounds, and suggested improvements.
 
 ## License
 
-MIT. See LICENSE.
+MIT. See [LICENSE](./LICENSE).
